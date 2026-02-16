@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - База знаний</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        /* ========== Основной контейнер ========== */
+        .admin-container {
+            width: 100%;
+            height: 100vh;
+            background: white;
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+        }
+
+        /* ========== Боковая панель ========== */
+        .sidebar {
+            width: 250px;
+            min-width: 250px;
+            background: #1e1e2e;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            color: #ffffff;
+            font-size: 1.2em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header h2 i {
+            color: #a78bfa;
+        }
+
+        .sidebar-nav {
+            padding: 20px 15px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: #a0a0b0;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .sidebar .nav-item:hover {
+            background: rgba(79, 70, 229, 0.2);
+            color: #ffffff;
+        }
+
+        .sidebar .nav-item.active {
+            background: #4f46e5;
+            color: #ffffff;
+        }
+
+        .sidebar .nav-item i {
+            font-size: 1.2em;
+        }
+
+        .sidebar-footer {
+            padding: 20px 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+        }
+
+        .user-profile i {
+            font-size: 1.5em;
+            color: #a78bfa;
+        }
+
+        .user-name {
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        .sidebar-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            text-decoration: none;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-btn.chat-btn {
+            background: rgba(79, 70, 229, 0.2);
+            color: #a78bfa;
+        }
+
+        .sidebar-btn.chat-btn:hover {
+            background: rgba(79, 70, 229, 0.3);
+            color: #c4b5fd;
+        }
+
+        .sidebar-btn.logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+        }
+
+        .sidebar-btn.logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        /* ========== Основная область контента ========== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .content-header {
+            background: #4f46e5;
+            color: white;
+            padding: 20px 30px;
+        }
+
+        .content-header h1 {
+            font-size: 1.5em;
+            margin: 0 0 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .content-header p {
+            opacity: 0.9;
+            font-size: 0.9em;
+            margin: 0;
+        }
+
+        .content-body {
+            flex: 1;
+            padding: 25px 30px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* ========== KPI карточки ========== */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .kpi-card h5 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin: 0 0 10px 0;
+        }
+
+        .kpi-card h2 {
+            font-size: 2em;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* ========== Карточки контента ========== */
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .content-card h3 {
+            font-size: 1.2em;
+            color: #1f2937;
+            margin: 0 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .content-card h3 i {
+            color: #4f46e5;
+        }
+
+        /* ========== Таблицы ========== */
+        .styled-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .styled-table thead th {
+            background: #f1f5f9;
+            color: #4b5563;
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .styled-table thead th:first-child {
+            border-radius: 10px 0 0 0;
+        }
+
+        .styled-table thead th:last-child {
+            border-radius: 0 10px 0 0;
+        }
+
+        .styled-table tbody td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #374151;
+            font-size: 0.95em;
+        }
+
+        .styled-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .styled-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ========== Кнопки ========== */
+        .btn-primary-custom {
+            background: #4f46e5;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary-custom:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+        }
+
+        .btn-sm-custom {
+            padding: 6px 12px;
+            font-size: 0.8em;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .btn-edit:hover {
+            background: #bfdbfe;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
+        .btn-success-custom {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .btn-success-custom:hover {
+            background: #bbf7d0;
+        }
+
+        .btn-warning-custom {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .btn-warning-custom:hover {
+            background: #fde68a;
+        }
+
+        .btn-secondary-custom {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #e2e8f0;
+        }
+
+        /* ========== Формы ========== */
+        .form-label-custom {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+        }
+
+        .form-control-custom {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        .form-control-custom:focus {
+            border-color: #4f46e5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        /* ========== Badges ========== */
+        .badge-custom {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .badge-admin {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .badge-user {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .badge-active {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .badge-inactive {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .badge-tag {
+            background: #f3f4f6;
+            color: #4f46e5;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+
+        /* ========== Графики ========== */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            max-height: 300px;
+        }
+
+        /* ========== Tags Cloud ========== */
+        .tags-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tag-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .tag-badge .count {
+            background: rgba(255,255,255,0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+
+        /* ========== Upload Area ========== */
+        .upload-area {
+            border: 2px dashed #e2e8f0;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        .upload-area:hover {
+            border-color: #4f46e5;
+            background: #f5f3ff;
+        }
+
+        .upload-area i {
+            font-size: 3em;
+            color: #9ca3af;
+            margin-bottom: 15px;
+        }
+
+        .upload-area p {
+            color: #6b7280;
+            margin: 0;
+        }
+
+        /* ========== Модальные окна ========== */
+        .modal-content {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 20px 25px;
+        }
+
+        .modal-header .modal-title {
+            font-weight: 600;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            border: none;
+            padding: 15px 25px 25px;
+            gap: 10px;
+        }
+
+        .modal-footer .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .modal-footer .btn-primary {
+            background: #4f46e5;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .modal-footer .btn-primary:hover {
+            background: #4338ca;
+        }
+
+        /* ========== Alert ========== */
+        .alert-custom {
+            border-radius: 12px;
+            padding: 15px 20px;
+            border: none;
+        }
+
+        .alert-success-custom {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .alert-danger-custom {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* ========== Action buttons group ========== */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* ========== Адаптивность ========== */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+                min-width: 70px;
+            }
+
+            .sidebar-header h2 span,
+            .sidebar .nav-item span,
+            .sidebar-btn span,
+            .user-name {
+                display: none;
+            }
+
+            .sidebar-header h2 {
+                justify-content: center;
+            }
+
+            .sidebar .nav-item,
+            .sidebar-btn {
+                justify-content: center;
+            }
+
+            .user-profile {
+                justify-content: center;
+            }
+
+            .content-body {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .styled-table {
+                font-size: 0.85em;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Боковая панель -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="bi bi-gear-fill"></i> <span>Админ-панель</span></h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="nav-item active" data-section="dashboard" onclick="showSection('dashboard')">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-item" data-section="articles" onclick="showSection('articles')">
+                    <i class="bi bi-file-text"></i>
+                    <span>Статьи</span>
+                </a>
+                <a class="nav-item" data-section="upload" onclick="showSection('upload')">
+                    <i class="bi bi-cloud-upload"></i>
+                    <span>Загрузка</span>
+                </a>
+                <a class="nav-item" data-section="tags" onclick="showSection('tags')">
+                    <i class="bi bi-tags"></i>
+                    <span>Теги</span>
+                </a>
+                <a class="nav-item" data-section="analytics" onclick="showSection('analytics')">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>Аналитика</span>
+                </a>
+                <a class="nav-item" data-section="users" onclick="showSection('users')">
+                    <i class="bi bi-people"></i>
+                    <span>Пользователи</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <i class="bi bi-person-circle"></i>
+                    <span class="user-name" id="username">admin</span>
+                </div>
+                <a href="/chat" class="sidebar-btn chat-btn">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>Чат</span>
+                </a>
+                <button class="sidebar-btn logout-btn" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Выйти</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Основная область контента -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1 id="section-title"><i class="bi bi-speedometer2"></i> Dashboard</h1>
+                <p id="section-description">Общая статистика и показатели системы</p>
+            </div>
+
+            <div class="content-body">
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="content-section active">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <h5><i class="bi bi-file-text"></i> Статей</h5>
+                            <h2 id="kpi-articles">0</h2>
+                        </div>
+                        <div class="kpi-card">
+                            <h5><i class="bi bi-chat-dots"></i> Сессий</h5>
+                            <h2 id="kpi-sessions">0</h2>
+                        </div>
+                        <div class="kpi-card">
+                            <h5><i class="bi bi-hand-index"></i> Взаимодействий</h5>
+                            <h2 id="kpi-interactions">0</h2>
+                        </div>
+                        <div class="kpi-card">
+                            <h5><i class="bi bi-star"></i> Средний Reward</h5>
+                            <h2 id="kpi-reward">0</h2>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h3><i class="bi bi-bar-chart-fill"></i> Топ статей по рекомендациям</h3>
+                        <div class="chart-container">
+                            <canvas id="topArticlesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Articles Section -->
+                <div id="articles" class="content-section">
+                    <div class="content-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="margin: 0;"><i class="bi bi-file-text-fill"></i> Управление статьями</h3>
+                            <button class="btn-primary-custom" onclick="showArticleModal()">
+                                <i class="bi bi-plus-lg"></i> Добавить статью
+                            </button>
+                        </div>
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Заголовок</th>
+                                    <th>Теги</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="articlesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Upload Section -->
+                <div id="upload" class="content-section">
+                    <div class="content-card">
+                        <h3><i class="bi bi-cloud-arrow-up-fill"></i> Загрузка документов</h3>
+                        <form id="uploadForm">
+                            <div class="form-group">
+                                <label class="form-label-custom">Файл (PDF, DOCX, MD)</label>
+                                <input type="file" class="form-control-custom" id="fileInput" accept=".pdf,.docx,.md,.markdown" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label-custom">URL (опционально)</label>
+                                <input type="text" class="form-control-custom" id="urlInput" placeholder="https://example.com/article">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label-custom">Теги (через запятую)</label>
+                                <input type="text" class="form-control-custom" id="tagsInput" placeholder="python, ml, tutorial">
+                            </div>
+                            <button type="submit" class="btn-primary-custom">
+                                <i class="bi bi-upload"></i> Загрузить
+                            </button>
+                        </form>
+                        <div id="uploadStatus" class="mt-3"></div>
+                    </div>
+                </div>
+
+                <!-- Tags Section -->
+                <div id="tags" class="content-section">
+                    <div class="content-card">
+                        <h3><i class="bi bi-tags-fill"></i> Управление тегами</h3>
+                        <p style="color: #6b7280; margin-bottom: 20px;">Нажмите на тег, чтобы удалить его</p>
+                        <div id="tagsCloud" class="tags-cloud"></div>
+                    </div>
+                </div>
+
+                <!-- Analytics Section -->
+                <div id="analytics" class="content-section">
+                    <div class="content-card">
+                        <h3><i class="bi bi-graph-up"></i> Динамика взаимодействий</h3>
+                        <div class="chart-container">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="users" class="content-section">
+                    <div class="content-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="margin: 0;"><i class="bi bi-people-fill"></i> Управление пользователями</h3>
+                            <button class="btn-primary-custom" onclick="showUserModal()">
+                                <i class="bi bi-person-plus"></i> Добавить пользователя
+                            </button>
+                        </div>
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Имя пользователя</th>
+                                    <th>Роль</th>
+                                    <th>Статус</th>
+                                    <th>Дата создания</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Article Modal -->
+    <div class="modal fade" id="articleModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="articleModalTitle">Добавить статью</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="articleForm">
+                        <input type="hidden" id="articleId">
+                        <div class="form-group">
+                            <label class="form-label-custom">Заголовок</label>
+                            <input type="text" class="form-control-custom" id="articleTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label-custom">Содержание</label>
+                            <textarea class="form-control-custom" id="articleContent" rows="5" required style="resize: vertical;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label-custom">URL</label>
+                            <input type="text" class="form-control-custom" id="articleUrl" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label-custom">Теги (через запятую)</label>
+                            <input type="text" class="form-control-custom" id="articleTags">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" onclick="saveArticle()">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Добавить пользователя</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <div class="form-group">
+                            <label class="form-label-custom">Имя пользователя</label>
+                            <input type="text" class="form-control-custom" id="userName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label-custom">Пароль</label>
+                            <input type="password" class="form-control-custom" id="userPassword" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label-custom">Роль</label>
+                            <select class="form-control-custom" id="userRole">
+                                <option value="user">Пользователь</option>
+                                <option value="admin">Администратор</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" onclick="saveUser()">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        const API_BASE = window.location.origin;
+        let authToken = localStorage.getItem('authToken');
+        let articleModal;
+
+        // Заголовки секций
+        const sectionTitles = {
+            dashboard: { title: 'Dashboard', icon: 'bi-speedometer2', desc: 'Общая статистика и показатели системы' },
+            articles: { title: 'Статьи', icon: 'bi-file-text', desc: 'Управление статьями базы знаний' },
+            upload: { title: 'Загрузка', icon: 'bi-cloud-upload', desc: 'Загрузка новых документов' },
+            tags: { title: 'Теги', icon: 'bi-tags', desc: 'Управление тегами статей' },
+            analytics: { title: 'Аналитика', icon: 'bi-bar-chart', desc: 'Статистика использования системы' },
+            users: { title: 'Пользователи', icon: 'bi-people', desc: 'Управление пользователями системы' }
+        };
+
+        // Проверка авторизации при загрузке
+        async function verifyAuth() {
+            if (!authToken) {
+                window.location.href = '/chat';
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE}/verify`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('currentUsername');
+                    localStorage.removeItem('userRole');
+                    window.location.href = '/chat';
+                    return;
+                }
+                const data = await response.json();
+                localStorage.setItem('userRole', data.role);
+                document.getElementById('username').textContent = localStorage.getItem('currentUsername') || 'admin';
+                if (data.role !== 'admin') {
+                    alert('Доступ запрещен. Ваши права администратора были отозваны.');
+                    window.location.href = '/chat';
+                }
+            } catch (error) {
+                window.location.href = '/chat';
+            }
+        }
+        verifyAuth();
+
+        // API запросы
+        async function apiRequest(endpoint, method = 'GET', body = null) {
+            const headers = {
+                'Authorization': `Bearer ${authToken}`
+            };
+
+            const options = { method, headers };
+
+            if (body && !(body instanceof FormData)) {
+                headers['Content-Type'] = 'application/json';
+                options.body = JSON.stringify(body);
+            } else if (body) {
+                options.body = body;
+            }
+
+            const response = await fetch(API_BASE + endpoint, options);
+            if (response.status === 403) {
+                alert('Доступ запрещен. Требуются права администратора.');
+                window.location.href = '/chat';
+                return;
+            }
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        }
+
+        // Навигация
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            document.querySelectorAll('.sidebar .nav-item').forEach(l => l.classList.remove('active'));
+            document.querySelector(`.nav-item[data-section="${sectionId}"]`).classList.add('active');
+
+            // Обновляем заголовок
+            const sectionInfo = sectionTitles[sectionId];
+            document.getElementById('section-title').innerHTML = `<i class="bi ${sectionInfo.icon}"></i> ${sectionInfo.title}`;
+            document.getElementById('section-description').textContent = sectionInfo.desc;
+
+            if (sectionId === 'dashboard') loadDashboard();
+            if (sectionId === 'articles') loadArticles();
+            if (sectionId === 'tags') loadTags();
+            if (sectionId === 'analytics') loadAnalytics();
+            if (sectionId === 'users') loadUsers();
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            try {
+                const analytics = await apiRequest('/admin/analytics/overview');
+                const articles = await apiRequest('/admin/articles');
+
+                document.getElementById('kpi-articles').textContent = articles.total;
+                document.getElementById('kpi-sessions').textContent = analytics.total_sessions;
+                document.getElementById('kpi-interactions').textContent = analytics.total_interactions;
+                document.getElementById('kpi-reward').textContent = analytics.avg_reward.toFixed(2);
+
+                // График топ-статей
+                const ctx = document.getElementById('topArticlesChart');
+                if (ctx.chart) ctx.chart.destroy();
+
+                if (analytics.top_articles.length > 0) {
+                    ctx.chart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: analytics.top_articles.map(a => `Статья ${a.article_id}`),
+                            datasets: [{
+                                label: 'Рекомендаций',
+                                data: analytics.top_articles.map(a => a.recommendation_count),
+                                backgroundColor: 'rgba(79, 70, 229, 0.6)',
+                                borderColor: 'rgba(79, 70, 229, 1)',
+                                borderWidth: 1,
+                                borderRadius: 8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: { beginAtZero: true },
+                                x: { grid: { display: false } }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        // Articles
+        async function loadArticles() {
+            try {
+                const data = await apiRequest('/admin/articles?limit=100');
+                const tbody = document.getElementById('articlesTable');
+                tbody.innerHTML = '';
+
+                data.articles.forEach(article => {
+                    const tr = document.createElement('tr');
+                    const tagsHtml = article.tags.map(t => `<span class="badge-tag">${t}</span>`).join('');
+                    tr.innerHTML = `
+                        <td>${article.id}</td>
+                        <td>${article.title}</td>
+                        <td>${tagsHtml}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-sm-custom btn-edit" onclick="editArticle(${article.id})">
+                                    <i class="bi bi-pencil"></i> Редактировать
+                                </button>
+                                <button class="btn-sm-custom btn-delete" onclick="deleteArticle(${article.id})">
+                                    <i class="bi bi-trash"></i> Удалить
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error loading articles:', error);
+            }
+        }
+
+        function showArticleModal(articleId = null) {
+            if (!articleModal) articleModal = new bootstrap.Modal(document.getElementById('articleModal'));
+
+            if (articleId) {
+                document.getElementById('articleModalTitle').textContent = 'Редактировать статью';
+            } else {
+                document.getElementById('articleModalTitle').textContent = 'Добавить статью';
+                document.getElementById('articleForm').reset();
+                document.getElementById('articleId').value = '';
+            }
+
+            articleModal.show();
+        }
+
+        async function saveArticle() {
+            const id = document.getElementById('articleId').value;
+            const data = {
+                title: document.getElementById('articleTitle').value,
+                content: document.getElementById('articleContent').value,
+                url: document.getElementById('articleUrl').value,
+                tags: document.getElementById('articleTags').value.split(',').map(t => t.trim()).filter(t => t)
+            };
+
+            try {
+                if (id) {
+                    await apiRequest(`/admin/articles/${id}`, 'PUT', data);
+                } else {
+                    await apiRequest('/admin/articles', 'POST', data);
+                }
+                articleModal.hide();
+                loadArticles();
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        async function deleteArticle(id) {
+            if (!confirm('Удалить статью?')) return;
+            try {
+                await apiRequest(`/admin/articles/${id}`, 'DELETE');
+                loadArticles();
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        async function editArticle(id) {
+            try {
+                const article = await apiRequest(`/admin/articles/${id}`);
+
+                document.getElementById('articleId').value = article.id;
+                document.getElementById('articleTitle').value = article.title;
+                document.getElementById('articleContent').value = article.content;
+                document.getElementById('articleUrl').value = article.url;
+                document.getElementById('articleTags').value = article.tags.join(', ');
+
+                if (!articleModal) articleModal = new bootstrap.Modal(document.getElementById('articleModal'));
+                document.getElementById('articleModalTitle').textContent = 'Редактировать статью';
+                articleModal.show();
+            } catch (error) {
+                alert('Ошибка загрузки статьи: ' + error.message);
+            }
+        }
+
+        // Upload
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('file', document.getElementById('fileInput').files[0]);
+            formData.append('url', document.getElementById('urlInput').value);
+            formData.append('tags', document.getElementById('tagsInput').value);
+
+            try {
+                const result = await apiRequest('/admin/upload', 'POST', formData);
+                document.getElementById('uploadStatus').innerHTML = '<div class="alert-custom alert-success-custom">Файл загружен и обработан!</div>';
+                document.getElementById('uploadForm').reset();
+            } catch (error) {
+                document.getElementById('uploadStatus').innerHTML = '<div class="alert-custom alert-danger-custom">Ошибка: ' + error.message + '</div>';
+            }
+        });
+
+        // Tags
+        async function loadTags() {
+            try {
+                const data = await apiRequest('/admin/tags');
+                const cloud = document.getElementById('tagsCloud');
+                cloud.innerHTML = '';
+
+                for (const [tag, count] of Object.entries(data.tags)) {
+                    const badge = document.createElement('div');
+                    badge.className = 'tag-badge';
+                    badge.innerHTML = `${tag} <span class="count">${count}</span>`;
+                    badge.onclick = () => {
+                        if (confirm(`Удалить тег "${tag}"?`)) {
+                            deleteTag(tag);
+                        }
+                    };
+                    cloud.appendChild(badge);
+                }
+
+                if (Object.keys(data.tags).length === 0) {
+                    cloud.innerHTML = '<p style="color: #9ca3af;">Теги отсутствуют</p>';
+                }
+            } catch (error) {
+                console.error('Error loading tags:', error);
+            }
+        }
+
+        async function deleteTag(tag) {
+            try {
+                await apiRequest(`/admin/tags/${encodeURIComponent(tag)}`, 'DELETE');
+                loadTags();
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        // Analytics
+        let timelineChart = null;
+        async function loadAnalytics() {
+            try {
+                const timeline = await apiRequest('/admin/analytics/timeline?days=7');
+                const ctx = document.getElementById('timelineChart');
+
+                if (timelineChart) timelineChart.destroy();
+
+                timelineChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: timeline.timeline.map(t => t.date),
+                        datasets: [{
+                            label: 'Взаимодействия',
+                            data: timeline.timeline.map(t => t.interactions),
+                            borderColor: 'rgb(79, 70, 229)',
+                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            tension: 0.3,
+                            fill: true,
+                            pointBackgroundColor: 'rgb(79, 70, 229)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        // Users
+        let userModal;
+
+        async function loadUsers() {
+            try {
+                const data = await apiRequest('/admin/users');
+                const tbody = document.getElementById('usersTable');
+                tbody.innerHTML = '';
+
+                data.users.forEach(user => {
+                    const tr = document.createElement('tr');
+                    const statusBadge = user.is_active
+                        ? '<span class="badge-custom badge-active">Активен</span>'
+                        : '<span class="badge-custom badge-inactive">Неактивен</span>';
+                    const roleBadge = user.role === 'admin'
+                        ? '<span class="badge-custom badge-admin">Администратор</span>'
+                        : '<span class="badge-custom badge-user">Пользователь</span>';
+                    const createdAt = user.created_at ? new Date(user.created_at).toLocaleDateString('ru-RU') : 'N/A';
+
+                    tr.innerHTML = `
+                        <td><strong>${user.username}</strong></td>
+                        <td>${roleBadge}</td>
+                        <td>${statusBadge}</td>
+                        <td>${createdAt}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-sm-custom btn-warning-custom" onclick="toggleUserRole('${user.username}', '${user.role}')">
+                                    ${user.role === 'admin' ? '<i class="bi bi-person"></i>' : '<i class="bi bi-shield"></i>'}
+                                </button>
+                                <button class="btn-sm-custom ${user.is_active ? 'btn-secondary-custom' : 'btn-success-custom'}" onclick="toggleUserActive('${user.username}')">
+                                    ${user.is_active ? '<i class="bi bi-pause"></i>' : '<i class="bi bi-play"></i>'}
+                                </button>
+                                <button class="btn-sm-custom btn-delete" onclick="deleteUser('${user.username}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        function showUserModal() {
+            if (!userModal) userModal = new bootstrap.Modal(document.getElementById('userModal'));
+            document.getElementById('userForm').reset();
+            userModal.show();
+        }
+
+        async function saveUser() {
+            const username = document.getElementById('userName').value;
+            const password = document.getElementById('userPassword').value;
+            const role = document.getElementById('userRole').value;
+
+            if (!username || !password) {
+                alert('Заполните все поля');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('username', username);
+                formData.append('password', password);
+                formData.append('role', role);
+
+                await apiRequest('/admin/users', 'POST', formData);
+                userModal.hide();
+                loadUsers();
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        async function deleteUser(username) {
+            if (!confirm(`Удалить пользователя ${username}?`)) return;
+            try {
+                await apiRequest(`/admin/users/${encodeURIComponent(username)}`, 'DELETE');
+                loadUsers();
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        async function toggleUserRole(username, currentRole) {
+            const newRole = currentRole === 'admin' ? 'user' : 'admin';
+            try {
+                const formData = new FormData();
+                formData.append('role', newRole);
+                await apiRequest(`/admin/users/${encodeURIComponent(username)}/role`, 'PUT', formData);
+                loadUsers();
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        async function toggleUserActive(username) {
+            try {
+                await apiRequest(`/admin/users/${encodeURIComponent(username)}/toggle-active`, 'PUT');
+                loadUsers();
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUsername');
+            localStorage.removeItem('userRole');
+            window.location.href = '/chat';
+        }
+
+        // Загрузка dashboard при старте
+        loadDashboard();
+    </script>
+</body>
+</html>

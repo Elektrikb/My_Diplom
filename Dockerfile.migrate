@@ -1,0 +1,28 @@
+# Dockerfile для миграции данных из JSON в SQLite
+#
+# Использование:
+#   docker build -f Dockerfile.migrate -t migrate-db .
+#   docker run -v $(pwd)/data:/app/data migrate-db
+#
+# Или на Windows:
+#   docker run -v %cd%/data:/app/data migrate-db
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Копируем только необходимые файлы для миграции
+COPY database/db_init.py database/
+COPY database/__init__.py database/
+COPY config/settings.py config/
+COPY config/__init__.py config/
+COPY scripts/migrate_to_sqlite.py scripts/
+
+# Создаем пустые __init__.py если их нет
+RUN touch database/__init__.py config/__init__.py
+
+# Устанавливаем права на выполнение
+RUN chmod +x scripts/migrate_to_sqlite.py
+
+# Точка входа
+CMD ["python", "scripts/migrate_to_sqlite.py"]
